@@ -7,14 +7,20 @@
 use std::env;
 use std::path::PathBuf;
 use crate::kaibun::check_kaibun;
+use crate::soin::soin;
 
 mod kaibun;
 mod tree;
+mod soin;
 
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
+    //
+    // tree::tree(PathBuf::from(&args[1]), 0)
 
-    tree::tree(PathBuf::from(&args[1]), 0)
+    soin(args[1].parse().unwrap());
+
+    Ok(())
 }
 
 fn draw_checkered_pattern() {
