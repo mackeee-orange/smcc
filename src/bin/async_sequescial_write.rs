@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::sync::{Arc, mpsc, Mutex};
+use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 
 fn main() -> anyhow::Result<()> {
@@ -19,30 +19,29 @@ type Job = Box<dyn FnBox + Send + 'static>;
 
 struct Worker {
     id: String,
-    thread: thread::JoinHandle<()>
+    thread: thread::JoinHandle<()>,
 }
 
 impl Worker {
     fn new(id: &str, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
-        let thread = thread::spawn(move || {
-            loop {
-                let job = receiver.lock().unwrap().recv().expect("Jobの受け取りに失敗");
+        let thread = thread::spawn(move || loop {
+            let job = receiver
+                .lock()
+                .unwrap()
+                .recv()
+                .expect("Jobの受け取りに失敗");
 
-                println!("{id} is available now");
-                job.call_box();
-            }
+            println!("{id} is available now");
+            job.call_box();
         });
 
-        Worker {
-            id,
-            thread
-        }
+        Worker { id, thread }
     }
 }
 
 struct ThreadPool {
     workers: Vec<Worker>,
-    sender: mpsc::Sender<Job>
+    sender: mpsc::Sender<Job>,
 }
 
 impl ThreadPool {
@@ -56,10 +55,7 @@ impl ThreadPool {
             workers.push(Worker::new(id, Arc::clone(&receiver)));
         }
 
-        ThreadPool {
-            workers,
-            sender
-        }
+        ThreadPool { workers, sender }
     }
 
     pub fn execute<F: FnOnce() + Send + 'static>(&self, f: F) {
@@ -68,6 +64,4 @@ impl ThreadPool {
     }
 }
 
-async fn insert_counter_result(file: File) {
-
-}
+async fn insert_counter_result(file: File) {}

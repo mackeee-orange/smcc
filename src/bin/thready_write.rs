@@ -1,12 +1,14 @@
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, LineWriter, Write};
-use std::sync::{Arc, mpsc, Mutex};
-use std::{mem, thread};
 use std::os::unix::fs::FileExt;
+use std::sync::{mpsc, Arc, Mutex};
+use std::{mem, thread};
 
 fn main() {
     let labels = ["A", "B", "C", "D"];
-    let file = Arc::new(Mutex::new(LineWriter::new(File::create("buffer.txt").unwrap())));
+    let file = Arc::new(Mutex::new(LineWriter::new(
+        File::create("buffer.txt").unwrap(),
+    )));
     let counter = Arc::new(Mutex::new(0));
 
     let mut threads = Vec::with_capacity(labels.len());
